@@ -16,7 +16,7 @@ test_split_index = round(test_fraction * len(ids))
 np.random.seed(42)
 np.random.shuffle(ids)
 
-generate_images = False
+generate_images = True
 generate_labels = True
 
 train_images_path = Path("data/dwg/images/train")
