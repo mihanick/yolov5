@@ -43,7 +43,8 @@ with open(train_desc_file_path, "w") as train_desc_file:
                                 image_folder = str(val_images_path)
                                 label_folder = str(val_labels_path)
 
-                        image_file_name = "{}/{}.png".format(image_folder, id)
+                        format = 'bmp'
+                        image_file_name = "{}/{}.{}".format(image_folder, id, format)
                         label_file_name = "{}/{}.txt".format(label_folder, id)
 
                         img_size = 512
@@ -58,7 +59,7 @@ with open(train_desc_file_path, "w") as train_desc_file:
                                         save_file=True,
                                         main_stroke='1',
                                         img_size=img_size,
-                                        format='bmp')
+                                        format=format)
 
                         desc_file.write("{}\n".format(image_file_name))
 
