@@ -4,14 +4,20 @@ Train functions to run from console or jupyter
 
 import collections
 from math import inf, sqrt
+import pathlib
+from drawSvg.elements import Image
 import numpy as np
 import matplotlib.pyplot as plt
 from numpy.lib.npyio import save
+import os
 import torch
 import imageio
 import glob
 import math
+from PIL import Image
+
 from processing import query_collection_to_dataframe, expand_columns, normalize
+
 
 # https://pypi.org/project/drawSvg/
 # !pip install drawsvg
@@ -32,14 +38,14 @@ def generate_file2(file_id, path=None, verbose=False, save_file=False, draw_dime
         draw_texts=draw_texts,
         main_stroke=main_stroke)
 
-def generate_file(group, path=None, verbose=False, save_file=False, draw_dimensions=False, draw_texts=False, main_stroke='2', img_size = 512):
+def generate_file(group, path=None, verbose=False, save_file=False, draw_dimensions=False, draw_texts=False, main_stroke='2', img_size = 512, format='bmp'):
     # print(group.info())
     
     fileid = group.iloc[0]['GroupId']
     if len(fileid) == 0:
         return
-    
-    file_name = 'img/' + fileid + '.png'
+
+    file_name = 'img/' + fileid + '.' + format
     if path:
         file_name = path
 
@@ -182,6 +188,20 @@ def generate_file(group, path=None, verbose=False, save_file=False, draw_dimensi
     
     if save_file:
         d.savePng(file_name)
-        # d.saveSvg('img/' + fileid + '.svg')
+        if format != 'png':
+            # https://stackoverflow.com/questions/9166400/convert-rgba-png-to-rgb-with-pil
+            png = Image.open(file_name)
+            png.load() # required for png.split()
+
+            background = Image.new("RGB", png.size, (255, 255, 255))
+            background.paste(png, mask=png.split()[3]) # 3 is the alpha channel
+
+            
+            #os.remove(file_name)
+            file_name = file_name.replace('png', format)
+
+            background.save(file_name, format, quality=80)
+
+            # d.saveSvg('img/' + fileid + '.svg')
     return r, file_name
 

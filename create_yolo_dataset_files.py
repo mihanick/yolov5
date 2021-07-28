@@ -57,7 +57,8 @@ with open(train_desc_file_path, "w") as train_desc_file:
                                         draw_texts=False, 
                                         save_file=True,
                                         main_stroke='1',
-                                        img_size=img_size)
+                                        img_size=img_size,
+                                        format='bmp')
 
                         desc_file.write("{}\n".format(image_file_name))
 
@@ -112,3 +113,5 @@ with open(train_desc_file_path, "w") as train_desc_file:
                                                         bb_width / img_size,
                                                         bb_height / img_size
                                                 ))
+
+                        break #debug
