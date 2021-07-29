@@ -63,8 +63,9 @@ with open(train_desc_file_path, "w") as train_desc_file:
 
                         desc_file.write("{}\n".format(image_file_name))
 
-                        bb_width = 5
-                        bb_height = 5
+                        base_aperture = 6 #px
+                        bb_width = 2*base_aperture + 1
+                        bb_height = 2*base_aperture + 1
 
                         if generate_labels:
                                 dims = df[(df['GroupId'] == id) & (df['ClassName'] == 'AlignedDimension')]
@@ -87,13 +88,13 @@ with open(train_desc_file_path, "w") as train_desc_file:
                                                 center_y = target[2]
 
                                                 if center_x >= img_size:
-                                                        center_x-=2
+                                                        center_x-=base_aperture
                                                 if center_x <= 0:
-                                                        center_x = 2
+                                                        center_x = base_aperture
                                                 if center_y >= img_size:
-                                                        center_y-=2
+                                                        center_y-=base_aperture
                                                 if center_y <= 0:
-                                                        center_y = 2
+                                                        center_y = base_aperture
                                                 
                                                 duplicated = False
                                                 # check for duplicates
