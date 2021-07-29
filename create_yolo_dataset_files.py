@@ -64,8 +64,8 @@ with open(train_desc_file_path, "w") as train_desc_file:
                         desc_file.write("{}\n".format(image_file_name))
 
                         base_aperture = 6 #px
-                        bb_width = 2*base_aperture + 1
-                        bb_height = 2*base_aperture + 1
+                        pnt_bb_width = 2*base_aperture + 1
+                        pnt_bb_height = 2*base_aperture + 1
 
                         if generate_labels:
                                 dims = df[(df['GroupId'] == id) & (df['ClassName'] == 'AlignedDimension')]
@@ -74,12 +74,11 @@ with open(train_desc_file_path, "w") as train_desc_file:
                                 for _, dim_row in dims.iterrows():
                                         # Target will be 5x5 pixels around base point of dimension
                                         # category will be 0 for dim extension line base point
-                                        # category will be 1 for dim line point
+                                        
 
                                         targets =[
-                                                ['0', dim_row['XLine1Point.X'], dim_row['XLine1Point.Y']],
-                                                ['0', dim_row['XLine2Point.X'], dim_row['XLine2Point.Y']],
-                                                ['1', dim_row['DimLinePoint.X'], dim_row['DimLinePoint.Y']],
+                                                ['0', dim_row['XLine1Point.X'], dim_row['XLine1Point.Y'],pnt_bb_width, pnt_bb_height],
+                                                ['0', dim_row['XLine2Point.X'], dim_row['XLine2Point.Y'],pnt_bb_width, pnt_bb_height],
                                         ]
 
                                         for target in targets:
@@ -105,9 +104,22 @@ with open(train_desc_file_path, "w") as train_desc_file:
                                                                 break
                                                 if not duplicated:
                                                         labels.append(target)
+                                        
+                                        dim_x_coords = [dim_row['XLine1Point.X'], dim_row['XLine2Point.X'], dim_row['DimLinePoint.X']] 
+                                        dim_y_coords = [dim_row['XLine1Point.Y'], dim_row['XLine2Point.Y'], dim_row['DimLinePoint.Y']] 
+
+                                        x = min(dim_x_coords)
+                                        y = min(dim_y_coords)
+                                        bb_width = max(dim_x_coords) - x
+                                        bb_height = max(dim_y_coords) - y
+
+                                        bb_center_x = x + (bb_width / 2)
+                                        bb_center_y = y + (bb_height / 2)
+
+                                        labels.append(['1', bb_center_x, bb_center_y, bb_width, bb_height])
                                                         
                                 with open(label_file_name, 'w') as label_file:
-                                        for cat, center_x, center_y in labels:
+                                        for cat, center_x, center_y, bb_width, bb_height in labels:
                                                 label_file.write("{} {} {} {} {} \n".format(
                                                         cat,
                                                         center_x / img_size,
