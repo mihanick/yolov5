@@ -16,7 +16,7 @@ from utils.loggers import Loggers
 
 with torch.no_grad():
     data='data/dwg.yaml'
-    weights='runs/train/exp/weights/best (4).pt'  # model.pt path(s)
+    weights='runs/train/exp/weights/best.pt'  # model.pt path(s)
     #weights='yolov5s.pt'  # model.pt path(s)
     batch_size=16  # batch size
     imgsz=512  # inference size (pixels)
