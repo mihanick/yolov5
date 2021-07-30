@@ -9,6 +9,6 @@ python create_yolo_dataset_files.py
 python train.py --img 512 --batch 16 --epochs 200 --data dwg.yaml --weights yolov5x.pt
 # or python train.py --img 512 --batch 24 --epochs 200 --data dwg.yaml --weights yolov5m.pt
 # or python train.py --img 512 --batch 32 --epochs 200 --data dwg.yaml --weights yolov5s.pt
-python detect.py --weights runs/train/exp/weights/best.pt --source data/dwg/images/train, --imgsz=512, --conf_thres=0.1, --iou_thres=0.1, --exist_ok=True
+python detect.py --weights runs/train/exp/weights/best.pt --source data/dwg/images/train --imgsz 512 --conf-thres 0.1 --iou-thres 0.1 --exist-ok
 
 
