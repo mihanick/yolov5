@@ -148,7 +148,7 @@ with torch.no_grad():
 
             tt2 =  output_to_target(out)
             trg =np.concatenate((tt1.cpu().numpy(), tt2))
-            Thread(target=plot_images, args=(img, trg, paths, f, names, imgsz, batch_size, 1, conf_thres), daemon=True).start()
+            Thread(target=plot_images, args=(img, trg, paths, f, names, 4 * imgsz, batch_size, 1, conf_thres), daemon=True).start()
 
     # Compute statistics
     stats = [np.concatenate(x, 0) for x in zip(*stats)]  # to numpy
