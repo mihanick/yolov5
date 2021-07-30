@@ -16,7 +16,7 @@ test_split_index = round(test_fraction * len(ids))
 np.random.seed(42)
 np.random.shuffle(ids)
 
-generate_images = True
+generate_images = False
 generate_labels = True
 
 train_images_path = Path("data/dwg/images/train")
@@ -123,7 +123,7 @@ with open(train_desc_file_path, "w") as train_desc_file:
                                                 label_file.write("{} {} {} {} {} \n".format(
                                                         cat,
                                                         center_x / img_size,
-                                                        center_y / img_size,
+                                                        1 - center_y / img_size,
                                                         bb_width / img_size,
                                                         bb_height / img_size
                                                 ))
