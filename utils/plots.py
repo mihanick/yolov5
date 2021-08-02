@@ -2,6 +2,7 @@
 
 from copy import copy
 from pathlib import Path
+from showArray import showarray
 
 import cv2
 import math
@@ -13,6 +14,7 @@ import seaborn as sn
 import torch
 import yaml
 from PIL import Image, ImageDraw, ImageFont
+
 
 from utils.general import xywh2xyxy, xyxy2xywh
 from utils.metrics import fitness
@@ -65,6 +67,8 @@ def butter_lowpass_filtfilt(data, cutoff=1500, fs=50000, order=5):
     return filtfilt(b, a, data)  # forward-backward filter
 
 
+
+
 def plot_one_box(x, im, color=(128, 128, 128), label=None, line_thickness=1):
     # Plots one bounding box on image 'im' using OpenCV
     assert im.data.contiguous, 'Image not contiguous. Apply np.ascontiguousarray(im) to plot_on_box() input image.'
@@ -77,6 +81,7 @@ def plot_one_box(x, im, color=(128, 128, 128), label=None, line_thickness=1):
         c2 = c1[0] + t_size[0], c1[1] - t_size[1] - 3
         #cv2.rectangle(im, c1, c2, color, -1, cv2.LINE_AA)  # filled
         cv2.putText(im, label, (c1[0], c1[1] - 2), 0, tl / 3, color, thickness=tf, lineType=cv2.LINE_AA)
+    
 
 
 def plot_one_box_PIL(box, im, color=(128, 128, 128), label=None, line_thickness=None):
@@ -121,8 +126,55 @@ def output_to_target(output):
             targets.append([i, cls, *list(*xyxy2xywh(np.array(box)[None])), conf])
     return np.array(targets)
 
+def plot_one_image(images, targets, label):
+    # Plot image grid with labels
 
-def plot_images(images, targets, paths=None, fname='images.jpg', names=None, max_size=640, max_subplots=16, line_thickness=1, conf_thresh=0.25):
+    if isinstance(images, torch.Tensor):
+        images = images.cpu().float().numpy()
+    if isinstance(targets, torch.Tensor):
+        targets = targets.cpu().numpy()
+
+    # un-normalise
+    if np.max(images[0]) <= 1:
+        images *= 255
+
+    tl = 1
+    tf = max(tl - 1, 1)  # font thickness
+    _, h, w = images.shape  # batch size, _, height, width
+
+    # Check if we should resize
+    scale_factor = 1
+
+    img = images
+    img = img.transpose(1, 2, 0)
+    img = np.ascontiguousarray(img)
+    if len(targets) > 0:
+        image_targets = targets
+        boxes = xywh2xyxy(image_targets[:, 2:6]).T
+        classes = image_targets[:, 1].astype('int')
+        conf = image_targets[:, 6]  # check for confidence presence (label vs pred)
+
+        if boxes.shape[1]:
+            if boxes.max() <= 1.01:  # if normalized with tolerance 0.01
+                boxes[[0, 2]] *= w  # scale to pixels
+                boxes[[1, 3]] *= h
+            elif scale_factor < 1:  # absolute coords need scale if image scales
+                boxes *= scale_factor
+
+        for j, box in enumerate(boxes.T):
+            cls = int(classes[j])
+            color = colors(cls)
+            if conf[j] > 0.2:
+                if conf is not None:
+                    if conf[j] == 1:
+                        color = (0, 0, 255) # True label
+                label = '%s %.1f' % (cls, conf[j])
+                plot_one_box(box, img, label=label, color=color, line_thickness=int(tl))
+    showarray(img)
+    return img
+
+
+def plot_images(images, targets, paths=None, fname='images.jpg', names=None, max_size=640, max_subplots=16, line_thickness=1, conf_thresh=0.25, save_image=True):
     # Plot image grid with labels
 
     if isinstance(images, torch.Tensor):
@@ -199,9 +251,9 @@ def plot_images(images, targets, paths=None, fname='images.jpg', names=None, max
         r = min(1280. / max(h, w) / ns, 1.0)  # ratio to limit image size
         mosaic = cv2.resize(mosaic, (int(ns * w * r), int(ns * h * r)), interpolation=cv2.INTER_AREA)
         # cv2.imwrite(fname, cv2.cvtColor(mosaic, cv2.COLOR_BGR2RGB))  # cv2 save
-        Image.fromarray(mosaic).save(fname)  # PIL save
+        if save_image:
+            Image.fromarray(mosaic).save(fname)  # PIL save
     return mosaic
-
 
 def plot_lr_scheduler(optimizer, scheduler, epochs=300, save_dir=''):
     # Plot LR simulating training for full epochs
@@ -219,7 +271,6 @@ def plot_lr_scheduler(optimizer, scheduler, epochs=300, save_dir=''):
     plt.savefig(Path(save_dir) / 'LR.png', dpi=200)
     plt.close()
 
-
 def plot_val_txt():  # from utils.plots import *; plot_val()
     # Plot val.txt histograms
     x = np.loadtxt('val.txt', dtype=np.float32)
@@ -235,7 +286,6 @@ def plot_val_txt():  # from utils.plots import *; plot_val()
     ax[0].hist(cx, bins=600)
     ax[1].hist(cy, bins=600)
     plt.savefig('hist1d.png', dpi=200)
-
 
 def plot_targets_txt():  # from utils.plots import *; plot_targets_txt()
     # Plot targets.txt histograms
