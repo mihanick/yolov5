@@ -12,17 +12,76 @@ from pathlib import Path
 import cv2
 import torch
 import torch.backends.cudnn as cudnn
+import numpy as np
 
 FILE = Path(__file__).absolute()
 sys.path.append(FILE.parents[0].as_posix())  # add yolov5/ to path
 
 from models.experimental import attempt_load
 from utils.datasets import LoadStreams, LoadImages
-from utils.general import check_img_size, check_requirements, check_imshow, colorstr, non_max_suppression, \
+from utils.general import check_dataset, check_img_size, check_requirements, check_imshow, colorstr, non_max_suppression, \
     apply_classifier, scale_coords, xyxy2xywh, strip_optimizer, set_logging, increment_path, save_one_box
 from utils.plots import colors, plot_one_box
 from utils.torch_utils import select_device, load_classifier, time_sync
+from utils.datasets import create_dataloader
 
+
+def detect(img_path='uploads/fragment.png'):
+    #img = cv2.imread(filename=img_path)
+
+    # Convert
+    #img = img.transpose((2, 0, 1))[::-1]  # HWC to CHW, BGR to RGB
+    #img = np.ascontiguousarray(img)
+
+    #img = torch.from_numpy(img)
+    #img = img.unsqueeze(0)
+
+    with torch.no_grad():
+        dataset = LoadImages(img_path)
+        _, img = next(enumerate(dataset))
+        im_path_, img, img0, _ = img
+
+        weights='runs/train/exp/weights/best-s.pt'  # model.pt path(s)
+        batch_size=1  # batch size
+        imgsz=max(img.shape[1], img.shape[2])  # inference size (pixels)
+        conf_thres=0.2  # confidence threshold
+        iou_thres=0.2  # NMS IoU threshold
+        device=''  # cuda device, i.e. 0 or 0,1,2,3 or cpu
+        single_cls=False  # treat as single-class dataset
+        exist_ok=False  # existing project/name ok, do not increment
+
+        # Initialize/load model and set device
+        device = select_device(device, batch_size=batch_size)
+
+        # Load model
+        model = attempt_load(weights, map_location=device)  # load FP32 model
+        gs = max(int(model.stride.max()), 32)  # grid size (max stride)
+        imgsz = check_img_size(imgsz, s=gs)  # check image size
+
+        # Configure
+        model.eval()
+
+        # Dataloader
+        if device.type != 'cpu':
+            model(torch.zeros(1, 3, imgsz, imgsz).to(device).type_as(next(model.parameters())))  # run once
+
+        img = torch.from_numpy(img)
+        img = img.unsqueeze(0)
+
+        img = img.to(device, non_blocking=True)
+        img = img.float()  # uint8 to fp16/32
+        img /= 255.0  # 0 - 255 to 0.0 - 1.0
+
+        # Run model
+        out, train_out = model(img)  # inference and training outputs
+
+        # Run NMS
+        t = time_sync()
+        out = non_max_suppression(out, conf_thres, iou_thres, multi_label=True, agnostic=single_cls)
+        
+        # https://stackoverflow.com/questions/26646362/numpy-array-is-not-json-serializable
+        #result = torch.cat(out).cpu().numpy().tolist()
+        return [o.cpu().numpy().tolist() for o in out]
 
 @torch.no_grad()
 def run(weights='yolov5s.pt',  # model.pt path(s)
@@ -225,7 +284,6 @@ def parse_opt():
     parser.add_argument('--half', action='store_true', help='use FP16 half-precision inference')
     opt = parser.parse_args()
     return opt
-
 
 def main(opt):
     print(colorstr('detect: ') + ', '.join(f'{k}={v}' for k, v in vars(opt).items()))
