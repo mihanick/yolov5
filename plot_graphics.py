@@ -196,10 +196,14 @@ def generate_file(group, path=None, verbose=False, save_file=False, draw_dimensi
             background = Image.new("RGB", png.size, (255, 255, 255))
             background.paste(png, mask=png.split()[3]) # 3 is the alpha channel
 
-            
+            # convert to black and white
+            # https://stackoverflow.com/questions/9506841/using-python-pil-to-turn-a-rgb-image-into-a-pure-black-and-white-image
+            thres = 200
+            fn = lambda x: 255 if x> thres else 0
+            background = background.convert('L').point(fn, mode='1')
+
             #os.remove(file_name)
             file_name = file_name.replace('png', format)
-
             background.save(file_name, format, quality=80)
 
             # d.saveSvg('img/' + fileid + '.svg')

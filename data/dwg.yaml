@@ -4,8 +4,8 @@ val: val.txt
 test: 
 
 # Classes
-nc: 2  # number of classes
-names: [ 'DimExtPnt', 'DimBound' ]  # class names
+nc: 1  # number of classes
+names: [ 'DimBound' ]  # class names
 
 
 # Download script/URL (optional)
