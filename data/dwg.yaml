@@ -4,8 +4,8 @@ val: val.txt
 test: 
 
 # Classes
-nc: 1  # number of classes
-names: [ 'DimBound' ]  # class names
+nc: 4   # number of classes
+names: [ '++', '+-', '--', '-+' ]  # class names
 
 
 # Download script/URL (optional)
