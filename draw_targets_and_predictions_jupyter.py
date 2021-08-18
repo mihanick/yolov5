@@ -12,15 +12,15 @@ import PIL
 import numpy as np
 from showArray import showarray
 
-def PlotEv():
+def PlotEv(weights='runs/train/exp/weights/best.pt'):
     with torch.no_grad():
         data='data/dwg.yaml'
-        weights='runs/train/exp/weights/best-s.pt'  # model.pt path(s)
+        # model.pt path(s)
         #weights='yolov5s.pt'  # model.pt path(s)
         batch_size=16  # batch size
         imgsz=512  # inference size (pixels)
         conf_thres=0.5  # confidence threshold
-        iou_thres=0.6  # NMS IoU threshold
+        iou_thres=0.2  # NMS IoU threshold
         task='val'  # train, val, test, speed or study
         device=''  # cuda device, i.e. 0 or 0,1,2,3 or cpu
         single_cls=False  # treat as single-class dataset
