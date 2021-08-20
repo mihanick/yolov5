@@ -34,7 +34,7 @@ from utils.torch_utils import select_device, load_classifier, time_sync
 from utils.datasets import create_dataloader
 
 
-def detect(img_path='uploads/fragment.png'):
+def detect(img_path='uploads/fragment.png', weights='runs/train/exp/weights/best.pt',  conf_thres=0.2, iou_thres=0.5):
     #img = cv2.imread(filename=img_path)
 
     # Convert
@@ -49,11 +49,11 @@ def detect(img_path='uploads/fragment.png'):
         _, img = next(enumerate(dataset))
         im_path_, img, img0, _ = img
 
-        weights='runs/train/exp/weights/best-s.pt'  # model.pt path(s)
+        # model.pt path(s)
         batch_size=1  # batch size
         imgsz=max(img.shape[1], img.shape[2])  # inference size (pixels)
         conf_thres=0.2  # confidence threshold
-        iou_thres=0.2  # NMS IoU threshold
+        #        iou_thres=0.2  # NMS IoU threshold
         device=''  # cuda device, i.e. 0 or 0,1,2,3 or cpu
         single_cls=False  # treat as single-class dataset
         exist_ok=False  # existing project/name ok, do not increment
@@ -85,7 +85,7 @@ def detect(img_path='uploads/fragment.png'):
 
         # Run NMS
         t = time_sync()
-        out = non_max_suppression(out, conf_thres, iou_thres, multi_label=True, agnostic=single_cls)
+        out = non_max_suppression(out, conf_thres, iou_thres, multi_label=True)
         
         # https://stackoverflow.com/questions/26646362/numpy-array-is-not-json-serializable
         #result = torch.cat(out).cpu().numpy().tolist()
