@@ -2,6 +2,11 @@
 #cd yolov5
 pip install -r requirements.txt
 
+# in case of ImportError: libGL.so.1: cannot open shared object file: No such file or directory
+# apt update
+# apt-get install ffmpeg libsm6 libxext6  -y
+
+
 gdown --id 1xMpsc2M8JgN84nh5xBAZj5gNvNgmNrCO
 gdown --id 1zQNX6vJgnGT7h4TfeD__oGVzN8SMQNuA
 python create_yolo_dataset_files.py
