@@ -80,8 +80,8 @@ def create_yolo_dataset_files(rebuild=False, generate_images=True, generate_labe
                                                 bb_center_x = x + (bb_width / 2)
                                                 bb_center_y = y + (bb_height / 2)
 
-                                                vec_dim_x = dim_row['XLine2Point.X'] - dim_row['XLine2Point.X']
-                                                vec_dim_y = dim_row['XLine2Point.Y'] - dim_row['XLine2Point.Y']
+                                                vec_dim_x = dim_row['XLine2Point.X'] - dim_row['XLine1Point.X']
+                                                vec_dim_y = dim_row['XLine2Point.Y'] - dim_row['XLine1Point.Y']
 
                                                 # class will be dimension baseline direction,
                                                 if vec_dim_x >= 0 and vec_dim_y >= 0:
