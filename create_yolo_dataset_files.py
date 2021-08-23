@@ -9,8 +9,8 @@ from PIL import Image
 import os
 
 #################################################################
-def create_yolo_dataset_files(rebuild=False, generate_images=True, generate_labels=True):
-        df, ids = build_data(rebuild)
+def create_yolo_dataset_files(rebuild=False, generate_images=True, generate_labels=True, img_size=512, limit_records=None):
+        df, ids = build_data(rebuild, img_size=img_size, limit_records=limit_records)
         test_fraction = 0.1
         test_split_index = round(test_fraction * len(ids))
 
@@ -43,8 +43,6 @@ def create_yolo_dataset_files(rebuild=False, generate_images=True, generate_labe
                                 format = 'bmp'
                                 image_file_name = "{}/{}.{}".format(image_folder, id, format)
                                 label_file_name = "{}/{}.txt".format(label_folder, id)
-
-                                img_size = 512
 
                                 if generate_images:
                                         generate_file(
@@ -107,4 +105,4 @@ def create_yolo_dataset_files(rebuild=False, generate_images=True, generate_labe
 
                                 # break #debug
 if __name__ == "__main__":
-    create_yolo_dataset_files()
+    create_yolo_dataset_files(img_size=512, limit_records=None)

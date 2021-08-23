@@ -9,7 +9,7 @@ import math
 
 from pymongo import MongoClient
 
-def build_data(rebuild=False):
+def build_data(rebuild=False, img_size=512, limit_records=None):
     pickle_file = 'test_dataset_groups.pickle'
     group_ids_file = 'ids.txt'
     result_ids = []
@@ -39,8 +39,12 @@ def build_data(rebuild=False):
 
     else:
         df = pd.read_pickle(pickle_file)
+        df = normalize(df, to_size=img_size)
         with open(group_ids_file) as f:
             result_ids = f.read().splitlines()
+
+    if limit_records:
+        result_ids = result_ids[:limit_records]
 
     return df, result_ids
 
